@@ -10,6 +10,7 @@ import TimePicker from '../../components/TimePicker';
 import IHabbit from '../../models/IHabbit';
 import {addHabbit, removeHabbit} from '../../store/modules/appSlice/slice';
 import {useAppDispatch} from '../../store/hooks';
+import Divider from '../../components/Layout/Divider';
 
 type Props = NativeStackScreenProps<RootNavigationStack, 'AddHabbitScreen'>;
 
@@ -49,12 +50,14 @@ export default function AddHabbit(props: Props) {
         onSelectionChange={days => setHabbit({...habbit, days})}
         selectedDays={habbit.days}
       />
+      <Divider />
       <TimePicker
         onTimesSelect={time => setHabbit({...habbit, time})}
         interval={30}
-        beginTime={480}
-        endTime={1380}
+        beginTime={30}
+        endTime={1440}
         selectedTimes={habbit.time}
+        numColumns={4}
       />
       <FloatingActionsBar
         firstButtonText="Cancel"
@@ -74,5 +77,6 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     backgroundColor: '#fff',
+    padding: 10,
   },
 });
