@@ -53,8 +53,8 @@ export default function AddHabbit(props: Props) {
       <Divider />
       <TimePicker
         onTimesSelect={time => setHabbit({...habbit, time})}
-        interval={30}
-        beginTime={30}
+        interval={15}
+        beginTime={0}
         endTime={1440}
         selectedTimes={habbit.time}
         numColumns={4}

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,7 @@ const TimePicker: React.FC<TimePickerProps> = ({
 }) => {
   const [localSelectedTimes, setLocalSelectedTimes] =
     useState<number[]>(selectedTimes);
+  const [allElementsLoaded, setAllElementsLoaded] = useState(false);
 
   const timeSlots = [];
   let currentTime = beginTime;
@@ -56,13 +57,50 @@ const TimePicker: React.FC<TimePickerProps> = ({
     onTimesSelect(newSelectedTimes);
   };
 
-  const renderItem: ListRenderItem<number> = ({item}) => (
+  const flatListRef = useRef<FlatList<number>>(null);
+
+  const scrollToClosestTime = useCallback(
+    (time: number) => {
+      const closestTimeIndex = timeSlots.reduce(
+        (prevIndex, currentTime, currentIndex) => {
+          const prevTime = timeSlots[prevIndex];
+          const timeDiff = Math.abs(currentTime - prevTime);
+          const closestTimeDiff = Math.abs(time - prevTime);
+
+          return closestTimeDiff < timeDiff ? currentIndex : prevIndex;
+        },
+      );
+      const numColumnsInView = Math.floor(timeSlots.length / numColumns);
+
+      const offset =
+        Math.max(0, closestTimeIndex - numColumnsInView) *
+        styles.timeButton.height;
+
+      flatListRef.current?.scrollToOffset({offset, animated: true});
+    },
+    [timeSlots, numColumns],
+  );
+
+  useEffect(() => {
+    if (timeSlots.length > 0 && allElementsLoaded) {
+      scrollToClosestTime(beginTime);
+    }
+  }, [timeSlots, beginTime, scrollToClosestTime, allElementsLoaded]);
+
+  const handleAllElementsLoaded = useCallback(() => {
+    setAllElementsLoaded(true);
+  }, []);
+
+  const renderItem: ListRenderItem<number> = ({item, index}) => (
     <TouchableOpacity
       style={[
         styles.timeButton,
         localSelectedTimes.includes(item) && styles.selectedTimeButton,
       ]}
-      onPress={() => handleTimeSelect(item)}>
+      onPress={() => handleTimeSelect(item)}
+      onLayout={
+        index === timeSlots.length - 1 ? handleAllElementsLoaded : undefined
+      }>
       <Text
         style={[
           styles.timeText,
@@ -76,11 +114,17 @@ const TimePicker: React.FC<TimePickerProps> = ({
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={timeSlots}
         keyExtractor={item => item.toString()}
         renderItem={renderItem}
         numColumns={numColumns}
         contentContainerStyle={styles.flatListContainer}
+        getItemLayout={(_, index) => ({
+          length: styles.timeButton.height,
+          offset: styles.timeButton.height * index,
+          index,
+        })}
       />
     </View>
   );
@@ -88,11 +132,11 @@ const TimePicker: React.FC<TimePickerProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    height: 400,
+    height: 350,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 10,
-    padding: 10,
+    paddingHorizontal: 10,
   },
   flatListContainer: {
     justifyContent: 'space-between',
@@ -105,6 +149,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     margin: 5,
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 40,
   },
   selectedTimeButton: {
     backgroundColor: '#ccc',

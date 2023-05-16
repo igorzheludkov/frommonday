@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
 import {ScrollView, Text, StyleSheet, View} from 'react-native';
+import BackgroundTimer from 'react-native-background-timer';
 import FloatingActionsBar from '../../components/FloatingActionsBar';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -13,42 +14,17 @@ import Banner from './components/Banner';
 import {changeBanner} from '../../store/modules/appSlice/slice';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Divider from '../../components/Layout/Divider';
+import {showTodos} from './functions/notificationSetter';
+import useGetTodos from './hooks/useGetTodos';
 
 type Props = NativeStackScreenProps<RootNavigationStack, 'HomeScreen'>;
 
 export default function Home() {
-  const navigation = useNavigation<Props['navigation']>();
-  const habbits = useAppSelector(state => state.appSlice.habbits);
-  const banner = useAppSelector(state => state.appSlice.banner);
   const dispatch = useAppDispatch();
-
-  const today = new Date().getDay();
-
-  const [selectedDay, setSelectedDay] = useState<number>(today);
-
-  const filterItemsHasOnlyTimeField = habbits.filter(
-    item => item.hasOwnProperty('time') && !item.hasOwnProperty('days'),
-  );
-
-  const filterItemsWithoutTimeField = habbits.filter(
-    item => !item.hasOwnProperty('time') && item.days?.includes(selectedDay),
-  );
-
-  const filterItemsWithoutDaysAndTimeField = habbits.filter(
-    item => !item.hasOwnProperty('days') && !item.hasOwnProperty('time'),
-  );
-
-  const filterItemsHasDayAndTimeFields = habbits.filter(
-    item =>
-      item.hasOwnProperty('days') &&
-      item.hasOwnProperty('time') &&
-      item.days?.includes(selectedDay),
-  );
-
-  const shedule = [
-    ...filterItemsHasDayAndTimeFields,
-    ...filterItemsHasOnlyTimeField,
-  ];
+  const navigation = useNavigation<Props['navigation']>();
+  const banner = useAppSelector(state => state.appSlice.banner);
+  const habbits = useAppSelector(state => state.appSlice.habbits);
+  const {schedule, selectedDay, setSelectedDay} = useGetTodos(habbits);
 
   function editHabbitHandler(item: IHabbit) {
     navigation.navigate('AddHabbitScreen', {item});
@@ -63,6 +39,18 @@ export default function Home() {
       }
     });
   }
+  useEffect(() => {
+    let interval = 1;
+
+    if (schedule.day.length) {
+      interval = BackgroundTimer.setInterval(() => {
+        showTodos(schedule.day);
+      }, 60000);
+    }
+    return () => {
+      BackgroundTimer.clearInterval(interval);
+    };
+  }, [schedule.day]);
 
   return (
     <>
@@ -79,7 +67,7 @@ export default function Home() {
           <View style={styles.uncatetegorisedContainer}>
             <Text style={styles.uncatetegorizedTitle}>Ungategorised</Text>
             <View style={styles.uncatetegorisedItems}>
-              {filterItemsWithoutDaysAndTimeField.map((habbit: IHabbit) => (
+              {schedule.withoutDaysAndTime.map((habbit: IHabbit) => (
                 <HabbitItem
                   item={habbit}
                   key={habbit.id}
@@ -92,7 +80,7 @@ export default function Home() {
           <View style={styles.uncatetegorisedContainer}>
             <Text style={styles.uncatetegorizedTitle}>All Day</Text>
             <View style={styles.uncatetegorisedItems}>
-              {filterItemsWithoutTimeField.map((habbit: IHabbit) => (
+              {schedule.withoutTime.map((habbit: IHabbit) => (
                 <HabbitItem
                   item={habbit}
                   key={habbit.id}
@@ -104,7 +92,7 @@ export default function Home() {
 
           <View style={styles.scheduledContainer}>
             <Text style={styles.scheduledTitle}>Scheduled</Text>
-            <ItemsList items={shedule} editHandler={editHabbitHandler} />
+            <ItemsList items={schedule.day} editHandler={editHabbitHandler} />
           </View>
         </View>
       </ScrollView>
