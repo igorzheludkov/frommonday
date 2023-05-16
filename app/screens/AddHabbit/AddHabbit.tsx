@@ -19,10 +19,13 @@ export default function AddHabbit(props: Props) {
   const navigation = useNavigation<Props['navigation']>();
   const id = generateID();
   const dispatch = useAppDispatch();
+  const currentDayOfTheWeek = new Date().getDay();
 
   const [habbit, setHabbit] = useState<IHabbit>(
-    editableItem ?? {id, status: 0},
+    editableItem ?? {id, status: 0, days: [currentDayOfTheWeek], time: []},
   );
+
+  console.log('~~~~~~~~~~~~~~ habbit', habbit);
 
   function addHabbitHandler() {
     dispatch(addHabbit(habbit));

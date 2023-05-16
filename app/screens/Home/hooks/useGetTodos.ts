@@ -7,16 +7,16 @@ export default function useGetTodos(habbits: IHabbit[]) {
 
   const [selectedDay, setSelectedDay] = useState<number>(today);
 
-  const filterItemsHasOnlyTimeField = habbits.filter(
-    item => item.hasOwnProperty('time') && !item.hasOwnProperty('days'),
+  const filterItemsHasOnlyTime = habbits.filter(
+    item => item.hasOwnProperty('time') && item.days?.length === 0,
   );
 
-  const filterItemsWithoutTimeField = habbits.filter(
-    item => !item.hasOwnProperty('time') && item.days?.includes(selectedDay),
+  const filterItemsHasOnlyDay = habbits.filter(
+    item => item.time?.length === 0 && item.days?.includes(selectedDay),
   );
 
   const filterItemsWithoutDaysAndTimeField = habbits.filter(
-    item => !item.hasOwnProperty('days') && !item.hasOwnProperty('time'),
+    item => item.days?.length === 0 && item.time?.length === 0,
   );
 
   const filterItemsHasDayAndTimeFields = habbits.filter(
@@ -28,16 +28,16 @@ export default function useGetTodos(habbits: IHabbit[]) {
 
   const scheduleDay = [
     ...filterItemsHasDayAndTimeFields,
-    ...filterItemsHasOnlyTimeField,
+    ...filterItemsHasOnlyTime,
   ];
+
   return {
     schedule: {
       day: scheduleDay,
-      withoutTime: filterItemsWithoutTimeField,
+      withoutTime: filterItemsHasOnlyDay,
       withoutDaysAndTime: filterItemsWithoutDaysAndTimeField,
     },
     selectedDay,
-    itemsWithoutDaysAndTime: filterItemsWithoutDaysAndTimeField,
     setSelectedDay,
   };
 }

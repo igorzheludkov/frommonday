@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {
   View,
   Text,
@@ -29,13 +29,16 @@ const TimePicker: React.FC<TimePickerProps> = ({
     useState<number[]>(selectedTimes);
   const [allElementsLoaded, setAllElementsLoaded] = useState(false);
 
-  const timeSlots = [];
-  let currentTime = beginTime;
+  const timeSlots: number[] = useMemo(() => {
+    let slots: number[] = [];
+    let currentTime = beginTime;
 
-  while (currentTime <= endTime) {
-    timeSlots.push(currentTime);
-    currentTime += interval;
-  }
+    while (currentTime <= endTime) {
+      slots.push(currentTime);
+      currentTime += interval;
+    }
+    return slots;
+  }, [beginTime, endTime, interval]);
 
   const formatTime = (time: number) => {
     const hours = Math.floor(time / 60);

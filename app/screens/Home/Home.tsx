@@ -64,36 +64,42 @@ export default function Home() {
             selectedDays={[selectedDay]}
           />
           <Divider />
-          <View style={styles.uncatetegorisedContainer}>
-            <Text style={styles.uncatetegorizedTitle}>Ungategorised</Text>
-            <View style={styles.uncatetegorisedItems}>
-              {schedule.withoutDaysAndTime.map((habbit: IHabbit) => (
-                <HabbitItem
-                  item={habbit}
-                  key={habbit.id}
-                  editHandler={editHabbitHandler}
-                />
-              ))}
+          {Boolean(schedule.withoutDaysAndTime.length) && (
+            <View style={styles.uncatetegorisedContainer}>
+              <Text style={styles.uncatetegorizedTitle}>Ungategorised</Text>
+              <View style={styles.uncatetegorisedItems}>
+                {schedule.withoutDaysAndTime.map((habbit: IHabbit) => (
+                  <HabbitItem
+                    item={habbit}
+                    key={habbit.id}
+                    editHandler={editHabbitHandler}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
+          )}
 
-          <View style={styles.uncatetegorisedContainer}>
-            <Text style={styles.uncatetegorizedTitle}>All Day</Text>
-            <View style={styles.uncatetegorisedItems}>
-              {schedule.withoutTime.map((habbit: IHabbit) => (
-                <HabbitItem
-                  item={habbit}
-                  key={habbit.id}
-                  editHandler={editHabbitHandler}
-                />
-              ))}
+          {Boolean(schedule.withoutTime.length) && (
+            <View style={styles.uncatetegorisedContainer}>
+              <Text style={styles.uncatetegorizedTitle}>All Day</Text>
+              <View style={styles.uncatetegorisedItems}>
+                {schedule.withoutTime.map((habbit: IHabbit) => (
+                  <HabbitItem
+                    item={habbit}
+                    key={habbit.id}
+                    editHandler={editHabbitHandler}
+                  />
+                ))}
+              </View>
             </View>
-          </View>
+          )}
 
-          <View style={styles.scheduledContainer}>
-            <Text style={styles.scheduledTitle}>Scheduled</Text>
-            <ItemsList items={schedule.day} editHandler={editHabbitHandler} />
-          </View>
+          {Boolean(schedule.day.length) && (
+            <View style={styles.scheduledContainer}>
+              <Text style={styles.scheduledTitle}>Scheduled</Text>
+              <ItemsList items={schedule.day} editHandler={editHabbitHandler} />
+            </View>
+          )}
         </View>
       </ScrollView>
       <FloatingActionsBar
