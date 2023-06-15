@@ -25,8 +25,6 @@ export default function AddHabbit(props: Props) {
     editableItem ?? {id, status: 0, days: [currentDayOfTheWeek], time: []},
   );
 
-  console.log('~~~~~~~~~~~~~~ habbit', habbit);
-
   function addHabbitHandler() {
     dispatch(addHabbit(habbit));
     navigation.goBack();
@@ -56,9 +54,9 @@ export default function AddHabbit(props: Props) {
       <Divider />
       <TimePicker
         onTimesSelect={time => setHabbit({...habbit, time})}
-        interval={15}
-        beginTime={0}
-        endTime={1440}
+        interval={2}
+        beginTime={720}
+        endTime={780}
         selectedTimes={habbit.time}
         numColumns={4}
       />

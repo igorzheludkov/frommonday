@@ -17,9 +17,13 @@ import Divider from '../../components/Layout/Divider';
 import {showTodos} from './functions/notificationSetter';
 import useGetTodos from './hooks/useGetTodos';
 
+import {useOrientation} from 'react-native-use-hooks';
+
 type Props = NativeStackScreenProps<RootNavigationStack, 'HomeScreen'>;
 
 export default function Home() {
+  const orientation = useOrientation();
+  console.log('~~~~~~~~~~~~~~ orientation', orientation);
   const dispatch = useAppDispatch();
   const navigation = useNavigation<Props['navigation']>();
   const banner = useAppSelector(state => state.appSlice.banner);
@@ -39,16 +43,28 @@ export default function Home() {
       }
     });
   }
-  useEffect(() => {
-    let interval = 1;
+  // useEffect(() => {
+  //   let interval = 1;
 
+  //   if (schedule.day.length) {
+  //     interval = BackgroundTimer.setInterval(() => {
+  //       showTodos(schedule.day);
+  //     }, 60000);
+  //   }
+  //   return () => {
+  //     BackgroundTimer.clearInterval(interval);
+  //   };
+  // }, [schedule.day]);
+
+  useEffect(() => {
     if (schedule.day.length) {
-      interval = BackgroundTimer.setInterval(() => {
+      BackgroundTimer.runBackgroundTimer(() => {
         showTodos(schedule.day);
       }, 60000);
     }
+
     return () => {
-      BackgroundTimer.clearInterval(interval);
+      BackgroundTimer.stopBackgroundTimer();
     };
   }, [schedule.day]);
 

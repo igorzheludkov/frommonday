@@ -84,11 +84,11 @@ const TimePicker: React.FC<TimePickerProps> = ({
     [timeSlots, numColumns],
   );
 
-  useEffect(() => {
-    if (timeSlots.length > 0 && allElementsLoaded) {
-      scrollToClosestTime(beginTime);
-    }
-  }, [timeSlots, beginTime, scrollToClosestTime, allElementsLoaded]);
+  // useEffect(() => {
+  //   if (timeSlots.length > 0 && allElementsLoaded) {
+  //     scrollToClosestTime(beginTime);
+  //   }
+  // }, [timeSlots, beginTime, scrollToClosestTime, allElementsLoaded]);
 
   const handleAllElementsLoaded = useCallback(() => {
     setAllElementsLoaded(true);
